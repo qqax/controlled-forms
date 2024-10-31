@@ -1,0 +1,5 @@
+/src
+/example
+
+# Ignore test-related files
+/tests

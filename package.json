@@ -1,0 +1,45 @@
+{
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "jest"
+  },
+  "dependencies": {
+    "cleaning-objects": "^1.0.0",
+    "react-phone-number-input": "^3.4.9"
+  },
+  "name": "controlled-forms",
+  "version": "1.0.0",
+  "description": "With this package you can check the correctness of form fields (including if you need to check the value of one input field based on another) and show errors.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qqax/controlled-forms.git"
+  },
+  "keywords": [
+    "react",
+    "form",
+    "control",
+    "input",
+    "validation",
+    "error"
+  ],
+  "author": "qqax",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/qqax/controlled-forms/issues"
+  },
+  "homepage": "https://github.com/qqax/controlled-forms#readme"
+}
