@@ -53,7 +53,7 @@ interface OuterControlProps extends HTMLInputElement {
     labelPosition: string;
     // value: string | boolean;
     submitted: boolean;
-    setValue: (value: string | boolean) => void;
+    setValue: (value: string | boolean) => (value: (((prevState: string) => string) | string)) => void;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 
     validate?: {
@@ -114,7 +114,7 @@ const OuterControl = forwardRef((props: OuterControlProps, ref: Ref<any>) => {
 
     useEffect(() => {
         if (validate) {
-            if ((typeof value === 'string' && (!value || value.length === 0))) {
+            if (!value || value.length === 0) {
                 validate.required && setErrors((errors: ErrorControl[]) => ({...errors, [id]: {required: validate.required}}));
             } else {
                 const newErrors: { [key: string]: any } = {[id]: errors[id] ? errors[id] : {}};
