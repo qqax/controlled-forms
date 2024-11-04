@@ -1,20 +1,42 @@
-import React, {forwardRef, Ref, useEffect, useState} from "react";
+import React, {forwardRef, Ref, useEffect, useState, InputHTMLAttributes} from "react";
 import {removeEmptyObjects} from "cleaning-objects";
 
-interface ControlledProps extends HTMLInputElement {
+interface ControlledProps extends InputHTMLAttributes<HTMLInputElement> {
+    id: string;
+    // type: string;
+    label?: string;
+    labelPosition: string;
+    // value: string | boolean;
+    submitted: boolean;
+    // setValue: (value: string | boolean) => (value: (((prevState: string) => string) | string)) => void;
     setValue?: (value: string | boolean) => void;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+
+    validate?: ValidateObj;
+    errors: { [key: string]: any };
+    setErrors: (errors: any) => void;
+
     [key: string]: any;
+
+    InputComponent: React.FC<any>;
+
+    AfterInputComponent?: React.FC<any>;
+    afterInputComponentProps?: Record<string, any>;
+
+    labelClassName?: string;
+    inputClassName?: string | ((hasError: boolean) => string);
+    inputWrapperClassName?: string;
+    labelInputWrapperClassName?: string;
+    containerClassName?: string;
+    errorClassName?: string;
 }
 
-
-const Controlled = (InputComponent: React.FC<any>) => forwardRef((props: ControlledProps, ref: Ref<any>) => {
-    return props.setValue ? <OuterControl {...props} InputComponent={InputComponent} ref={ref}/> :
-        <InnerControl {...props} InputComponent={InputComponent} ref={ref}/>;
-});
-
-interface InnerControlProps extends HTMLInputElement {
-    [key: string]: any;
-}
+const Controlled = (InputComponent: React.FC<any>) =>
+    forwardRef<any, ControlledProps>((props, ref) => {
+        return props.setValue
+            ? <OuterControl {...props} InputComponent={InputComponent} ref={ref}/>
+            : <InnerControl {...props} InputComponent={InputComponent} ref={ref}/>;
+    });
 
 interface ErrorControl {
     errorId: string;
@@ -22,9 +44,16 @@ interface ErrorControl {
     componentId?: string
 }
 
-const InnerControl = forwardRef((props: InnerControlProps, ref: Ref<any>) => {
+type ValidateFunc = (value: string | boolean) => ErrorControl
+
+interface ValidateObj {
+    required?: boolean;
+    func?: Array<ValidateFunc>
+}
+
+const InnerControl = forwardRef<any, ControlledProps>((props, ref) => {
     const {value} = props;
-    const [inputValue, setInputValue] = useState<string>(value ? value : "");
+    const [inputValue, setInputValue] = useState<string | number | readonly string[]>(value ? value : "");
     return <OuterControl {...props} value={inputValue} setValue={setInputValue} ref={ref}/>;
 });
 
@@ -46,37 +75,7 @@ const Label = ({id, label, labelClassName, labelPosition, validate}: LabelProps)
 };
 
 
-interface OuterControlProps extends HTMLInputElement {
-    id: string;
-    // type: string;
-    label?: string;
-    labelPosition: string;
-    // value: string | boolean;
-    submitted: boolean;
-    setValue: (value: string | boolean) => (value: (((prevState: string) => string) | string)) => void;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-
-    validate?: {
-        required?: boolean;
-        func?: Array<(value: string | boolean) => ErrorControl>
-    };
-    errors: { [key: string]: any };
-    setErrors: (errors: any) => void;
-
-    InputComponent: React.FC<any>;
-
-    AfterInputComponent?: React.FC<any>;
-    afterInputComponentProps?: Record<string, any>;
-
-    labelClassName?: string;
-    inputClassName?: string | ((hasError: boolean) => string);
-    inputWrapperClassName?: string;
-    labelInputWrapperClassName?: string;
-    containerClassName?: string;
-    errorClassName?: string;
-}
-
-const OuterControl = forwardRef((props: OuterControlProps, ref: Ref<any>) => {
+const OuterControl = forwardRef<any, ControlledProps>((props, ref) => {
     const {
         id,
         type,
@@ -115,11 +114,14 @@ const OuterControl = forwardRef((props: OuterControlProps, ref: Ref<any>) => {
     useEffect(() => {
         if (validate) {
             if (!value || value.length === 0) {
-                validate.required && setErrors((errors: ErrorControl[]) => ({...errors, [id]: {required: validate.required}}));
+                validate.required && setErrors((errors: ErrorControl[]) => ({
+                    ...errors,
+                    [id]: {required: validate.required}
+                }));
             } else {
                 const newErrors: { [key: string]: any } = {[id]: errors[id] ? errors[id] : {}};
                 newErrors[id] && delete newErrors[id].required;
-                validate.func && validate.func.forEach(func => {
+                validate.func && validate.func.forEach((func: ValidateFunc) => {
                     const {errorId, msg, componentId} = func(value);
                     const cID = componentId ? componentId : id;
                     if (componentId) {

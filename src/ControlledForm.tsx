@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, Children, cloneElement, useState } from "react";
+import React, {FC, ReactNode, Children, cloneElement, useState, ReactElement} from "react";
 
 interface ControlledFormProps {
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -42,21 +42,24 @@ const ControlledForm: FC<ControlledFormProps> = (props) => {
         <form onSubmit={handleSubmit} className={formStyle}>
             <fieldset>
                 <legend className={legendStyle}>{legend}</legend>
-                {Children.map(Children.toArray(props.children).filter(Boolean), (child) =>
-                    cloneElement(child, {
-                        errors: errors,
-                        setErrors: setErrors,
-                        submitted: submitted
-                    })
+                {Children.map(
+                    Children
+                        .toArray(props.children)
+                        .filter(Boolean), (child) =>
+                        cloneElement(child, {
+                            errors: errors,
+                            setErrors: setErrors,
+                            submitted: submitted
+                        })
                 )}
                 <WaitButton
                     disabled={disabled || (submitted && !!Object.keys(errors).length)}
                     buttonText={buttonText}
                     buttonContainerStyle={buttonContainerStyle}
                 />
-                {AfterButtonComponent && <AfterButtonComponent />}
+                {AfterButtonComponent && <AfterButtonComponent/>}
             </fieldset>
-            {formErrors && <ErrorsComponent errors={formErrors} />}
+            {formErrors && <ErrorsComponent errors={formErrors}/>}
         </form>
     );
 };
