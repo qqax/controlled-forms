@@ -43,7 +43,7 @@ function validatePhone(errorMsg: string): (inputText: string) => { errorId: stri
 }
 
 function validate(errorId: string, condition: boolean, errorMsg: string, id?: string): { errorId: string; msg: string | undefined; componentId: string | undefined; } {
-    return { errorId: errorId, msg: condition && errorMsg, componentId: id };
+    return { errorId: errorId, msg: condition ? errorMsg : undefined, componentId: id };
 }
 
 export { validate, isChecked, checkEquality, minLength, checkFloat, validateEmail, validatePhone, isEmail };

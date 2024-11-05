@@ -1,7 +1,7 @@
-import React, {forwardRef, Ref, useEffect, useState, InputHTMLAttributes} from "react";
+import React, {forwardRef, useEffect, useState, InputHTMLAttributes} from "react";
 import {removeEmptyObjects} from "cleaning-objects";
 
-interface ControlledProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface ControlledProps extends InputHTMLAttributes<HTMLInputElement> {
     id: string;
     // type: string;
     label?: string;
