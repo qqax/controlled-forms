@@ -1,17 +1,27 @@
-import React, {FC, ReactNode, Children, cloneElement, useState, ReactElement} from "react";
+import React, {
+    FC,
+    ReactNode,
+    Children,
+    cloneElement,
+    useState,
+    ReactElement, FormEvent,
+} from "react";
 
 interface ControlledFormProps {
-    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-    legend: string;
+    onSubmit: (e: FormEvent<HTMLFormElement>) => void;
     disabled?: boolean;
     formStyle?: string;
+
+    legend: string;
     legendStyle?: string;
+
     buttonText?: string;
     buttonContainerStyle?: string;
-    WaitButton: React.FC<{ disabled: boolean; buttonText?: string; buttonContainerStyle?: string }>;
-    AfterButtonComponent?: React.FC;
+    WaitButton: FC<{ disabled: boolean; buttonText?: string; buttonContainerStyle?: string }>;
+
     formErrors?: any;
-    ErrorsComponent: React.FC<{ errors: any }>;
+    ErrorsComponent: FC<{ errors: any }>;
+
     children: ReactNode;
 }
 
@@ -20,6 +30,7 @@ const ControlledForm: FC<ControlledFormProps> = (props) => {
     const [submitted, setSubmitted] = useState<boolean>(false);
     const {
         onSubmit,
+        children,
         legend,
         disabled,
         formStyle,
@@ -27,10 +38,20 @@ const ControlledForm: FC<ControlledFormProps> = (props) => {
         buttonText,
         buttonContainerStyle,
         WaitButton,
-        AfterButtonComponent,
         formErrors,
         ErrorsComponent
     } = props;
+
+    const childrenArray = Children.toArray(children).filter(Boolean);
+    const childrenWithProps = childrenArray
+        .map(child => {
+                return cloneElement(child as ReactElement, {
+                    errors: errors,
+                    setErrors: setErrors,
+                    submitted: submitted
+                })
+            }
+        )
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
@@ -42,22 +63,12 @@ const ControlledForm: FC<ControlledFormProps> = (props) => {
         <form onSubmit={handleSubmit} className={formStyle}>
             <fieldset>
                 <legend className={legendStyle}>{legend}</legend>
-                {Children.map(
-                    Children
-                        .toArray(props.children)
-                        .filter(Boolean), (child) =>
-                        cloneElement(child, {
-                            errors: errors,
-                            setErrors: setErrors,
-                            submitted: submitted
-                        })
-                )}
+                {childrenWithProps}
                 <WaitButton
                     disabled={disabled || (submitted && !!Object.keys(errors).length)}
                     buttonText={buttonText}
                     buttonContainerStyle={buttonContainerStyle}
                 />
-                {AfterButtonComponent && <AfterButtonComponent/>}
             </fieldset>
             {formErrors && <ErrorsComponent errors={formErrors}/>}
         </form>
